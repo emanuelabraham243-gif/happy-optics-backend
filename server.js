@@ -12,7 +12,7 @@ const app = express();
 // ── Security middleware ────────────────────────────────────────
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors({
-  origin: [process.env.FRONTEND_URL, 'http://localhost:3000', 'http://127.0.0.1:5500'],
+  origin: process.env.FRONTEND_URL === '*' ? '*' : [process.env.FRONTEND_URL, 'http://localhost:3000', 'http://127.0.0.1:5500'],
   methods: ['GET', 'POST', 'PATCH', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
