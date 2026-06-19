@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy Optics — Admin Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:       #03100f;
+    --bg2:      #071917;
+    --bg3:      #0c2421;
+    --teal:     #00c4ba;
+    --teal-dk:  #004b49;
+    --gold:     #c9a84c;
+    --white:    #ffffff;
+    --muted:    rgba(255,255,255,.5);
+    --border:   rgba(255,255,255,.08);
+    --glass:    rgba(255,255,255,.045);
+    --red:      #ef4444;
+    --green:    #22c55e;
+    --yellow:   #f59e0b;
+    --blue:     #3b82f6;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--white); min-height: 100vh; }
+
+  /* ── LOGIN ── */
+  #login-screen {
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, #03100f 0%, #004b49 50%, #03100f 100%);
+  }
+  .login-card {
+    background: rgba(255,255,255,.06); backdrop-filter: blur(24px);
+    border: 1px solid rgba(0,196,186,.2); border-radius: 24px;
+    padding: 3rem 2.5rem; width: 100%; max-width: 420px;
+    box-shadow: 0 24px 80px rgba(0,0,0,.4);
+  }
+  .login-logo { text-align: center; margin-bottom: 2rem; }
+  .login-logo .name { font-size: 1.5rem; font-weight: 700; color: var(--white); }
+  .login-logo .sub  { font-size: .7rem; letter-spacing: .2em; text-transform: uppercase; color: var(--teal); }
+  .login-title { font-size: 1.2rem; font-weight: 700; margin-bottom: .4rem; }
+  .login-sub { font-size: .82rem; color: var(--muted); margin-bottom: 2rem; }
+  .form-group { margin-bottom: 1.2rem; }
+  .form-group label { display: block; font-size: .72rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: .5rem; }
+  .form-group input {
+    width: 100%; background: rgba(255,255,255,.05); border: 1px solid var(--border);
+    border-radius: 10px; padding: .85rem 1rem; font-family: 'Poppins', sans-serif;
+    font-size: .85rem; color: var(--white); outline: none; transition: border-color .2s;
+  }
+  .form-group input:focus { border-color: rgba(0,196,186,.5); }
+  .login-btn {
+    width: 100%; background: linear-gradient(135deg, var(--teal), var(--teal-dk));
+    color: var(--bg); border: none; padding: 1rem; border-radius: 12px;
+    font-family: 'Poppins', sans-serif; font-size: .88rem; font-weight: 700;
+    cursor: pointer; margin-top: .5rem; transition: all .3s;
+  }
+  .login-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,196,186,.35); }
+  .login-error { background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.3); border-radius: 8px; padding: .8rem 1rem; font-size: .8rem; color: #ef4444; margin-bottom: 1rem; display: none; }
+
+  /* ── DASHBOARD LAYOUT ── */
+  #dashboard { display: none; }
+  .sidebar {
+    position: fixed; left: 0; top: 0; bottom: 0; width: 240px;
+    background: var(--bg2); border-right: 1px solid var(--border);
+    display: flex; flex-direction: column; z-index: 100;
+  }
+  .sidebar-logo { padding: 1.5rem; border-bottom: 1px solid var(--border); }
+  .sidebar-logo .name { font-size: 1rem; font-weight: 700; }
+  .sidebar-logo .sub  { font-size: .6rem; letter-spacing: .15em; text-transform: uppercase; color: var(--teal); }
+  .nav-section { padding: 1.2rem 1rem; flex: 1; }
+  .nav-label { font-size: .6rem; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); padding: 0 .5rem; margin-bottom: .5rem; }
+  .nav-item {
+    display: flex; align-items: center; gap: .75rem; padding: .7rem .75rem;
+    border-radius: 10px; font-size: .82rem; font-weight: 500; color: var(--muted);
+    cursor: pointer; transition: all .2s; margin-bottom: 2px; text-decoration: none;
+  }
+  .nav-item:hover, .nav-item.active { background: rgba(0,196,186,.1); color: var(--white); }
+  .nav-item.active { color: var(--teal); }
+  .nav-item .icon { font-size: 1rem; width: 20px; text-align: center; }
+  .sidebar-footer { padding: 1rem; border-top: 1px solid var(--border); }
+  .logout-btn {
+    width: 100%; padding: .65rem; border-radius: 10px; background: rgba(239,68,68,.1);
+    border: 1px solid rgba(239,68,68,.2); color: #ef4444; font-size: .78rem;
+    font-weight: 600; cursor: pointer; font-family: 'Poppins', sans-serif; transition: all .2s;
+  }
+  .logout-btn:hover { background: rgba(239,68,68,.2); }
+
+  .main-content { margin-left: 240px; padding: 2rem; min-height: 100vh; }
+
+  /* ── TOP BAR ── */
+  .topbar {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 2rem;
+  }
+  .page-title { font-size: 1.5rem; font-weight: 700; }
+  .page-title span { color: var(--teal); }
+  .topbar-right { display: flex; align-items: center; gap: 1rem; }
+  .branch-badge {
+    padding: .4rem 1rem; border-radius: 100px; font-size: .72rem; font-weight: 600;
+    background: rgba(0,196,186,.1); border: 1px solid rgba(0,196,186,.25); color: var(--teal);
+  }
+
+  /* ── STAT CARDS ── */
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.2rem; margin-bottom: 2rem; }
+  .stat-card {
+    background: var(--glass); border: 1px solid var(--border); border-radius: 16px;
+    padding: 1.5rem; transition: all .3s;
+  }
+  .stat-card:hover { background: rgba(255,255,255,.07); transform: translateY(-3px); }
+  .stat-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: .8rem; }
+  .stat-icon { width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
+  .stat-label { font-size: .7rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .stat-num { font-size: 2rem; font-weight: 700; }
+  .stat-sub { font-size: .72rem; color: var(--muted); margin-top: .25rem; }
+
+  /* ── FILTERS ── */
+  .filters {
+    display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; align-items: center;
+  }
+  .filter-select, .filter-input {
+    background: var(--glass); border: 1px solid var(--border); border-radius: 10px;
+    padding: .6rem 1rem; font-family: 'Poppins', sans-serif; font-size: .8rem;
+    color: var(--white); outline: none; cursor: pointer;
+  }
+  .filter-select option { background: var(--bg2); }
+  .filter-input::placeholder { color: var(--muted); }
+  .filter-input:focus, .filter-select:focus { border-color: rgba(0,196,186,.4); }
+
+  /* ── TABLE ── */
+  .table-card {
+    background: var(--glass); border: 1px solid var(--border); border-radius: 20px;
+    overflow: hidden;
+  }
+  .table-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 1.2rem 1.5rem; border-bottom: 1px solid var(--border);
+  }
+  .table-title { font-size: .9rem; font-weight: 700; }
+  .table-count { font-size: .75rem; color: var(--muted); }
+  table { width: 100%; border-collapse: collapse; }
+  thead th {
+    padding: .85rem 1.2rem; text-align: left; font-size: .68rem; font-weight: 700;
+    letter-spacing: .1em; text-transform: uppercase; color: var(--muted);
+    border-bottom: 1px solid var(--border);
+  }
+  tbody tr { border-bottom: 1px solid rgba(255,255,255,.04); transition: background .2s; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: rgba(255,255,255,.04); }
+  tbody td { padding: .85rem 1.2rem; font-size: .82rem; vertical-align: middle; }
+  .patient-name { font-weight: 600; color: var(--white); }
+  .patient-phone { font-size: .75rem; color: var(--muted); }
+
+  /* Status badges */
+  .badge {
+    display: inline-flex; align-items: center; gap: .3rem;
+    padding: .25rem .7rem; border-radius: 100px; font-size: .68rem; font-weight: 700;
+    letter-spacing: .06em; text-transform: uppercase;
+  }
+  .badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; display: block; }
+  .badge-pending   { background: rgba(245,158,11,.12); color: #f59e0b; border: 1px solid rgba(245,158,11,.25); }
+  .badge-pending::before   { background: #f59e0b; }
+  .badge-confirmed { background: rgba(34,197,94,.12); color: #22c55e; border: 1px solid rgba(34,197,94,.25); }
+  .badge-confirmed::before { background: #22c55e; }
+  .badge-completed { background: rgba(59,130,246,.12); color: #3b82f6; border: 1px solid rgba(59,130,246,.25); }
+  .badge-completed::before { background: #3b82f6; }
+  .badge-cancelled { background: rgba(239,68,68,.12); color: #ef4444; border: 1px solid rgba(239,68,68,.25); }
+  .badge-cancelled::before { background: #ef4444; }
+
+  .branch-tag {
+    font-size: .7rem; padding: .2rem .6rem; border-radius: 6px;
+    background: rgba(0,196,186,.08); color: var(--teal); font-weight: 500;
+  }
+
+  /* Action buttons */
+  .action-btn {
+    padding: .35rem .75rem; border-radius: 8px; font-size: .72rem; font-weight: 600;
+    cursor: pointer; border: 1px solid; font-family: 'Poppins', sans-serif; transition: all .2s;
+  }
+  .btn-confirm  { background: rgba(34,197,94,.1);  color: #22c55e; border-color: rgba(34,197,94,.25);  }
+  .btn-complete { background: rgba(59,130,246,.1);  color: #3b82f6; border-color: rgba(59,130,246,.25); }
+  .btn-cancel   { background: rgba(239,68,68,.1);   color: #ef4444;  border-color: rgba(239,68,68,.25);  }
+  .btn-delete   { background: rgba(239,68,68,.1);   color: #ef4444;  border-color: rgba(239,68,68,.25);  }
+  .action-btn:hover { opacity: .85; transform: scale(1.03); }
+
+  /* Pagination */
+  .pagination { display: flex; justify-content: center; gap: .5rem; padding: 1.2rem; border-top: 1px solid var(--border); }
+  .page-btn {
+    width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center;
+    justify-content: center; font-size: .8rem; font-weight: 600; cursor: pointer;
+    background: var(--glass); border: 1px solid var(--border); color: var(--muted); transition: all .2s;
+  }
+  .page-btn.active, .page-btn:hover { background: rgba(0,196,186,.15); border-color: rgba(0,196,186,.3); color: var(--teal); }
+
+  /* Loading spinner */
+  .spinner {
+    width: 32px; height: 32px; border: 3px solid var(--border);
+    border-top-color: var(--teal); border-radius: 50%;
+    animation: spin .7s linear infinite; margin: 3rem auto; display: block;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Toast notification */
+  #toast {
+    position: fixed; bottom: 2rem; right: 2rem; z-index: 9999;
+    background: var(--bg2); border: 1px solid var(--border); border-radius: 12px;
+    padding: 1rem 1.5rem; font-size: .83rem; font-weight: 600;
+    box-shadow: 0 8px 32px rgba(0,0,0,.4); transform: translateY(100px);
+    opacity: 0; transition: all .35s cubic-bezier(.4,0,.2,1); max-width: 320px;
+  }
+  #toast.show { transform: translateY(0); opacity: 1; }
+  #toast.success { border-color: rgba(34,197,94,.3); color: #22c55e; }
+  #toast.error   { border-color: rgba(239,68,68,.3);  color: #ef4444; }
+
+  .empty-state { text-align: center; padding: 4rem 2rem; color: var(--muted); font-size: .88rem; }
+  .empty-icon  { font-size: 3rem; margin-bottom: 1rem; }
+</style>
+</head>
+<body>
+
+<!-- ── LOGIN SCREEN ── -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="name">Happy Optics</div>
+      <div class="sub">Admin Dashboard</div>
+    </div>
+    <h2 class="login-title">Welcome back</h2>
+    <p class="login-sub">Sign in to manage bookings and patients</p>
+    <div class="login-error" id="login-error"></div>
+    <div class="form-group">
+      <label>Username</label>
+      <input type="text" id="username" placeholder="admin" autocomplete="username">
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="password" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <button class="login-btn" onclick="login()">Sign In →</button>
+  </div>
+</div>
+
+<!-- ── DASHBOARD ── -->
+<div id="dashboard">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="name">Happy Optics</div>
+      <div class="sub">Admin Panel</div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Main Menu</div>
+      <a class="nav-item active" onclick="showPage('bookings')">
+        <span class="icon">📋</span> Bookings
+      </a>
+      <a class="nav-item" onclick="showPage('patients')">
+        <span class="icon">👥</span> Patients
+      </a>
+      <a class="nav-item" onclick="showPage('stats')">
+        <span class="icon">📊</span> Statistics
+      </a>
+      <div class="nav-label" style="margin-top:1.5rem;">Branches</div>
+      <a class="nav-item" onclick="filterByBranch('Main Branch')">
+        <span class="icon">🏢</span> Main Branch
+      </a>
+      <a class="nav-item" onclick="filterByBranch('Gorgorious Branch')">
+        <span class="icon">📍</span> Gorgorious
+      </a>
+    </div>
+    <div class="sidebar-footer">
+      <button class="logout-btn" onclick="logout()">Sign Out</button>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div class="main-content">
+    <!-- Top bar -->
+    <div class="topbar">
+      <div>
+        <div class="page-title" id="page-title">All <span>Bookings</span></div>
+        <div style="font-size:.75rem;color:var(--muted);margin-top:.2rem;" id="page-sub">Manage all appointment requests</div>
+      </div>
+      <div class="topbar-right">
+        <div class="branch-badge" id="today-count">Today: 0</div>
+        <div style="font-size:.8rem;color:var(--muted);" id="admin-name">admin</div>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid" id="stats-grid">
+      <div class="stat-card">
+        <div class="stat-top">
+          <div><div class="stat-label">Total Bookings</div><div class="stat-num" id="s-total">—</div></div>
+          <div class="stat-icon" style="background:rgba(0,196,186,.1);color:var(--teal);">📋</div>
+        </div>
+        <div class="stat-sub">All time</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-top">
+          <div><div class="stat-label">Pending</div><div class="stat-num" id="s-pending" style="color:#f59e0b;">—</div></div>
+          <div class="stat-icon" style="background:rgba(245,158,11,.1);color:#f59e0b;">⏳</div>
+        </div>
+        <div class="stat-sub">Awaiting confirmation</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-top">
+          <div><div class="stat-label">Confirmed</div><div class="stat-num" id="s-confirmed" style="color:#22c55e;">—</div></div>
+          <div class="stat-icon" style="background:rgba(34,197,94,.1);color:#22c55e;">✅</div>
+        </div>
+        <div class="stat-sub">Ready to see</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-top">
+          <div><div class="stat-label">Completed</div><div class="stat-num" id="s-completed" style="color:#3b82f6;">—</div></div>
+          <div class="stat-icon" style="background:rgba(59,130,246,.1);color:#3b82f6;">🎯</div>
+        </div>
+        <div class="stat-sub">Served patients</div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters">
+      <input class="filter-input" type="text" id="search-input" placeholder="🔍  Search name, phone, email..." oninput="debounceSearch()" style="flex:1;min-width:200px;">
+      <select class="filter-select" id="status-filter" onchange="loadBookings()">
+        <option value="all">All Statuses</option>
+        <option value="pending">Pending</option>
+        <option value="confirmed">Confirmed</option>
+        <option value="completed">Completed</option>
+        <option value="cancelled">Cancelled</option>
+      </select>
+      <select class="filter-select" id="branch-filter" onchange="loadBookings()">
+        <option value="all">All Branches</option>
+        <option value="Main Branch">Main Branch</option>
+        <option value="Gorgorious Branch">Gorgorious</option>
+      </select>
+      <input class="filter-input" type="date" id="date-filter" onchange="loadBookings()">
+    </div>
+
+    <!-- Table -->
+    <div class="table-card">
+      <div class="table-header">
+        <div class="table-title">Appointments</div>
+        <div class="table-count" id="table-count"></div>
+      </div>
+      <div id="table-body">
+        <div class="spinner"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<script>
+const API = window.location.origin;
+let token = localStorage.getItem('ho_token');
+let currentPage = 1;
+let searchTimeout;
+
+// ── INIT ──────────────────────────────────────────────────────
+window.onload = () => {
+  if (token) { showDashboard(); }
+};
+
+// ── LOGIN ──────────────────────────────────────────────────────
+async function login() {
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value;
+  const errEl    = document.getElementById('login-error');
+  errEl.style.display = 'none';
+
+  try {
+    const res  = await fetch(`${API}/api/auth/login`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    token = data.token;
+    localStorage.setItem('ho_token', token);
+    showDashboard();
+  } catch (err) {
+    errEl.textContent = err.message || 'Login failed';
+    errEl.style.display = 'block';
+  }
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.getElementById('login-screen').style.display !== 'none') login();
+});
+
+function logout() {
+  localStorage.removeItem('ho_token');
+  token = null;
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+}
+
+// ── DASHBOARD ──────────────────────────────────────────────────
+function showDashboard() {
+  document.getElementById('login-screen').style.display  = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+  loadStats();
+  loadBookings();
+}
+
+// ── STATS ──────────────────────────────────────────────────────
+async function loadStats() {
+  try {
+    const res  = await fetch(`${API}/api/admin/stats`, { headers: { Authorization: `Bearer ${token}` } });
+    if (res.status === 401) { logout(); return; }
+    const data = await res.json();
+    document.getElementById('s-total').textContent     = data.total;
+    document.getElementById('s-pending').textContent   = data.pending;
+    document.getElementById('s-confirmed').textContent = data.confirmed;
+    document.getElementById('s-completed').textContent = data.completed;
+    document.getElementById('today-count').textContent = `Today: ${data.today}`;
+  } catch {}
+}
+
+// ── LOAD BOOKINGS ──────────────────────────────────────────────
+async function loadBookings(page = 1) {
+  currentPage = page;
+  document.getElementById('table-body').innerHTML = '<div class="spinner"></div>';
+
+  const search = document.getElementById('search-input').value;
+  const status = document.getElementById('status-filter').value;
+  const branch = document.getElementById('branch-filter').value;
+  const date   = document.getElementById('date-filter').value;
+
+  const params = new URLSearchParams({ page, limit: 15 });
+  if (search) params.append('search', search);
+  if (status && status !== 'all') params.append('status', status);
+  if (branch && branch !== 'all') params.append('branch', branch);
+  if (date) params.append('date', date);
+
+  try {
+    const res  = await fetch(`${API}/api/admin/bookings?${params}`, { headers: { Authorization: `Bearer ${token}` } });
+    if (res.status === 401) { logout(); return; }
+    const data = await res.json();
+    renderTable(data.bookings, data.total, data.pages);
+  } catch (err) {
+    document.getElementById('table-body').innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div>Failed to load bookings</div>`;
+  }
+}
+
+function renderTable(bookings, total, pages) {
+  document.getElementById('table-count').textContent = `${total} total`;
+
+  if (!bookings.length) {
+    document.getElementById('table-body').innerHTML = `<div class="empty-state"><div class="empty-icon">📭</div>No bookings found</div>`;
+    return;
+  }
+
+  const rows = bookings.map(b => `
+    <tr>
+      <td>
+        <div class="patient-name">${b.firstName} ${b.lastName}</div>
+        <div class="patient-phone">${b.phone}</div>
+      </td>
+      <td style="font-size:.8rem;">${b.service}</td>
+      <td style="font-size:.8rem;">${b.date}</td>
+      <td><span class="branch-tag">${b.branch === 'Main Branch' ? 'Main' : 'Gorgorious'}</span></td>
+      <td><span class="badge badge-${b.status}">${b.status}</span></td>
+      <td style="font-size:.72rem;color:var(--muted);">${new Date(b.createdAt).toLocaleDateString()}</td>
+      <td>
+        <div style="display:flex;gap:.4rem;flex-wrap:wrap;">
+          ${b.status === 'pending'    ? `<button class="action-btn btn-confirm"  onclick="updateStatus('${b._id}','confirmed')">Confirm</button>` : ''}
+          ${b.status === 'confirmed'  ? `<button class="action-btn btn-complete" onclick="updateStatus('${b._id}','completed')">Complete</button>` : ''}
+          ${b.status !== 'cancelled' && b.status !== 'completed' ? `<button class="action-btn btn-cancel" onclick="updateStatus('${b._id}','cancelled')">Cancel</button>` : ''}
+          <button class="action-btn btn-delete" onclick="deleteBooking('${b._id}')">🗑</button>
+        </div>
+      </td>
+    </tr>`).join('');
+
+  const paginationHTML = pages > 1 ? `
+    <div class="pagination">
+      ${currentPage > 1 ? `<div class="page-btn" onclick="loadBookings(${currentPage-1})">‹</div>` : ''}
+      ${Array.from({length: Math.min(pages,7)}, (_,i) => i+1).map(p =>
+        `<div class="page-btn ${p===currentPage?'active':''}" onclick="loadBookings(${p})">${p}</div>`
+      ).join('')}
+      ${currentPage < pages ? `<div class="page-btn" onclick="loadBookings(${currentPage+1})">›</div>` : ''}
+    </div>` : '';
+
+  document.getElementById('table-body').innerHTML = `
+    <table>
+      <thead>
+        <tr>
+          <th>Patient</th><th>Service</th><th>Date</th>
+          <th>Branch</th><th>Status</th><th>Submitted</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+    ${paginationHTML}`;
+}
+
+// ── UPDATE STATUS ──────────────────────────────────────────────
+async function updateStatus(id, status) {
+  try {
+    const res = await fetch(`${API}/api/admin/bookings/${id}`, {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ status })
+    });
+    if (!res.ok) throw new Error();
+    showToast(`Booking ${status}`, 'success');
+    loadBookings(currentPage);
+    loadStats();
+  } catch {
+    showToast('Update failed', 'error');
+  }
+}
+
+// ── DELETE BOOKING ─────────────────────────────────────────────
+async function deleteBooking(id) {
+  if (!confirm('Delete this booking? This cannot be undone.')) return;
+  try {
+    await fetch(`${API}/api/admin/bookings/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+    showToast('Booking deleted', 'success');
+    loadBookings(currentPage);
+    loadStats();
+  } catch {
+    showToast('Delete failed', 'error');
+  }
+}
+
+// ── HELPERS ────────────────────────────────────────────────────
+function filterByBranch(branch) {
+  document.getElementById('branch-filter').value = branch;
+  loadBookings();
+}
+
+function debounceSearch() {
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(() => loadBookings(), 400);
+}
+
+function showPage(page) {
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  event.target.closest('.nav-item').classList.add('active');
+}
+
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = (type === 'success' ? '✓ ' : '✗ ') + msg;
+  t.className = `show ${type}`;
+  setTimeout(() => { t.className = ''; }, 3000);
+}
+
+// Auto-refresh every 60s
+setInterval(() => { if (token) { loadStats(); loadBookings(currentPage); } }, 60000);
+</script>
+</body>
+</html>
