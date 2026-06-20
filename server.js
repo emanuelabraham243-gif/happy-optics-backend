@@ -12,14 +12,14 @@ const app = express();
 // ── Security middleware ────────────────────────────────────────
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors({
-  origin: process.env.FRONTEND_URL === '*' ? '*' : [process.env.FRONTEND_URL, 'http://localhost:3000', 'http://127.0.0.1:5500'],
+  origin: [process.env.FRONTEND_URL, 'http://localhost:3000', 'http://127.0.0.1:5500'],
   methods: ['GET', 'POST', 'PATCH', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 // ── Rate limiting ──────────────────────────────────────────────
 const bookingLimit = rateLimit({ windowMs: 60 * 60 * 1000, max: 10, message: { error: 'Too many bookings. Try again in an hour.' } });
-const loginLimit   = rateLimit({ windowMs: 15 * 60 * 1000, max: 5,  message: { error: 'Too many login attempts.' } });
+const loginLimit   = rateLimit({ windowMs: 15 * 60 * 1000, max: 20, message: { error: 'Too many login attempts. Please wait 15 minutes and try again.' } });
 
 // ── Body parsing ───────────────────────────────────────────────
 app.use(express.json());
